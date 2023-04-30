@@ -8,6 +8,7 @@ use config::Config;
 
 pub struct Data {
     pub http: reqwest::Client,
+    pub config: Config,
 } // User data, which is stored and accessible in all command invocations
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, Data, Error>;
@@ -37,6 +38,7 @@ async fn main() {
                 .await?;
                 Ok(Data {
                     http: reqwest::Client::new(),
+                    config: conf,
                 })
             })
         });

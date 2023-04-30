@@ -7,6 +7,14 @@ pub struct Discord {
 }
 
 #[derive(Deserialize)]
+pub struct AniList {
+    pub client_id: u16,
+    pub client_secret: String,
+    pub redirect_url: String,
+}
+
+#[derive(Deserialize)]
 pub struct Config {
     pub discord: Discord,
+    pub anilist: AniList,
 }
