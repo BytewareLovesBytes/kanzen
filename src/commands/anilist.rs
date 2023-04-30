@@ -1,4 +1,4 @@
-use poise::serenity_prelude::{ButtonStyle, EmojiId, ReactionType, CacheHttp, ActionRowComponent};
+use poise::serenity_prelude::{ActionRowComponent, ButtonStyle, CacheHttp, EmojiId, ReactionType};
 
 use crate::{
     helpers::{
@@ -33,7 +33,7 @@ pub async fn anime(
         &data.http,
         ANILIST_ANIME_QUERY,
         serde_json::json!({ "search": query }),
-        None
+        None,
     )
     .await?;
 
@@ -63,7 +63,7 @@ pub async fn manga(
         &data.http,
         ANILIST_MANGA_QUERY,
         serde_json::json!({ "search": query }),
-        None
+        None,
     )
     .await?;
 
@@ -153,7 +153,9 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
                 })
             })
         }).await?;
-        let modal_interaction = message.await_modal_interaction(&ctx.serenity_context().shard).await;
+        let modal_interaction = message
+            .await_modal_interaction(&ctx.serenity_context().shard)
+            .await;
         if let Some(modal_interaction) = modal_interaction {
             let row1 = modal_interaction.data.components.get(0).unwrap();
             let text_component = row1.components.get(0).unwrap();
@@ -161,7 +163,7 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
                 ActionRowComponent::InputText(text) => {
                     modal_interaction.defer(ctx.http()).await?;
                     println!("{}", text.value);
-                },
+                }
                 _ => {}
             }
         }

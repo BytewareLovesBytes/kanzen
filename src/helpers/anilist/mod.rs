@@ -1,7 +1,7 @@
 pub mod oauth;
 pub mod structs;
 
-use reqwest::{Client, Error as ReqwestError, header::HeaderMap};
+use reqwest::{header::HeaderMap, Client, Error as ReqwestError};
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
 
@@ -11,7 +11,7 @@ pub async fn perform_anilist_query<T: DeserializeOwned>(
     client: &Client,
     query: &str,
     variables: Value,
-    headers: Option<HeaderMap>
+    headers: Option<HeaderMap>,
 ) -> Result<T, ReqwestError> {
     let body = json!({
         "query": query,
