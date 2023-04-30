@@ -3,11 +3,11 @@ use poise::serenity_prelude::{ActionRowComponent, ButtonStyle, CacheHttp, EmojiI
 use crate::{
     helpers::{
         anilist::{
-            oauth::format_oauth_url,
+            oauth::{exchange_code, format_oauth_url, get_authenticated_user},
             perform_anilist_query,
-            structs::{Media, Response as AniListResponse},
+            structs::{Media, PageData, Response as AniListResponse},
         },
-        common::EmbedPaginator,
+        common::{EmbedPaginator, ToEmbed},
         constants::{ANILIST_ANIME_QUERY, ANILIST_ICON, ANILIST_MANGA_QUERY},
         random_component_id,
     },
@@ -29,7 +29,7 @@ pub async fn anime(
     ctx.defer_ephemeral().await?;
 
     let data = ctx.data();
-    let mut response: AniListResponse = perform_anilist_query(
+    let mut response: AniListResponse<PageData> = perform_anilist_query(
         &data.http,
         ANILIST_ANIME_QUERY,
         serde_json::json!({ "search": query }),
@@ -59,7 +59,7 @@ pub async fn manga(
     ctx.defer_ephemeral().await?;
 
     let data = ctx.data();
-    let mut response: AniListResponse = perform_anilist_query(
+    let mut response: AniListResponse<PageData> = perform_anilist_query(
         &data.http,
         ANILIST_MANGA_QUERY,
         serde_json::json!({ "search": query }),
@@ -162,7 +162,28 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
             match text_component {
                 ActionRowComponent::InputText(text) => {
                     modal_interaction.defer(ctx.http()).await?;
-                    println!("{}", text.value);
+                    let auth_code = &text.value;
+                    let anilist_conf = &data.config.anilist;
+                    let token_response = exchange_code(
+                        &data.http,
+                        &auth_code,
+                        &anilist_conf.client_id,
+                        &anilist_conf.client_secret,
+                        &anilist_conf.redirect_url,
+                    )
+                    .await?;
+                    let mut anilist_user =
+                        get_authenticated_user(&data.http, &token_response.access_token).await?;
+                    modal_interaction
+                        .create_followup_message(ctx.http(), |cfr| {
+                            cfr.ephemeral(true);
+                            cfr.embed(|ce| {
+                                anilist_user.to_embed(ce);
+                                ce
+                            });
+                            cfr.content("<:superrocket:1102307185855303710> - **Account Linked Successfully**")
+                        })
+                        .await?;
                 }
                 _ => {}
             }

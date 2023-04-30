@@ -2,6 +2,11 @@ use reqwest::{header::HeaderMap, Client, Error as ReqwestError};
 use serde::Deserialize;
 use serde_json::json;
 
+use super::{
+    perform_anilist_query,
+    structs::{Response, User, ViewerData},
+};
+
 const TOKEN_URL: &str = "https://anilist.co/api/v2/oauth/token";
 
 #[derive(Deserialize)]
@@ -44,15 +49,44 @@ pub async fn exchange_code(
 
     Ok(response)
 }
-pub async fn get_authenticated_user(client: &Client, access_token: &String) {
+pub async fn get_authenticated_user(
+    client: &Client,
+    access_token: &String,
+) -> Result<User, ReqwestError> {
     let mut headers = HeaderMap::new();
     headers.insert(
         "Authorization",
         format!("Bearer {}", access_token).parse().unwrap(),
     );
-    let grapql: &str = "
-        query() {
-            Viewer
+    let query: &str = "
+    query {
+        Viewer {
+            name,
+            id,
+            avatar {
+                large,
+                medium
+            },
+            bannerImage,
+            siteUrl,
+            about(asHtml: false),
+            statistics {
+                manga {
+                    volumesRead,
+                    chaptersRead,
+                    count
+                }
+                anime {
+                    minutesWatched,
+                    episodesWatched,
+                    count
+                }
+            }
         }
-        ";
+    }
+    ";
+    let data: Response<ViewerData> =
+        perform_anilist_query(client, query, json!({}), Some(headers)).await?;
+    let user = data.data.viewer;
+    Ok(user)
 }
