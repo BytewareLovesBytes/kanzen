@@ -33,6 +33,7 @@ pub async fn anime(
         &data.http,
         ANILIST_ANIME_QUERY,
         serde_json::json!({ "search": query }),
+        None
     )
     .await?;
 
@@ -62,6 +63,7 @@ pub async fn manga(
         &data.http,
         ANILIST_MANGA_QUERY,
         serde_json::json!({ "search": query }),
+        None
     )
     .await?;
 

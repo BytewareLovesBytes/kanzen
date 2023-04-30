@@ -1,74 +1,4 @@
-use reqwest::{Client, Error as ReqwestError};
-use serde::de::DeserializeOwned;
-use serde_json::{json, Value};
-
-const ANILIST_BASE_URL: &str = "https://graphql.anilist.co";
-
-pub async fn perform_anilist_query<T: DeserializeOwned>(
-    client: &Client,
-    query: &str,
-    variables: Value,
-) -> Result<T, ReqwestError> {
-    let body = json!({
-        "query": query,
-        "variables": variables
-    });
-    let response = client
-        .post(ANILIST_BASE_URL)
-        .header("Content-Type", "application/json")
-        .header("Accept", "application/json")
-        .body(body.to_string())
-        .send()
-        .await?
-        .json()
-        .await?;
-
-    Ok(response)
-}
-
-pub mod oauth {
-    use serde::Deserialize;
-    use serde_json::json;
-    use reqwest::{Client, Error as ReqwestError};
-
-    const TOKEN_URL: &str = "https://anilist.co/api/v2/oauth/token";
-
-    #[derive(Deserialize)]
-    pub struct TokenResponse {
-        pub access_token: String,
-        pub refresh_token: String,
-        pub expires_in: u32,
-        pub token_type: String
-    }
-
-    pub fn format_oauth_url(client_id: &u16, redirect_uri: &str) -> String {
-        format!(
-            "https://anilist.co/api/v2/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"
-        )
-    }
-    pub async fn exchange_code(client: &Client, code: &str, client_id: &u16, client_secret: &str, redirect_uri: &str) -> Result<TokenResponse, ReqwestError> {
-        let payload = json!({
-            "grant_type": "authorization_code",
-            "client_id": client_id,
-            "client_secret": client_secret,
-            "redirect_uri": redirect_uri,
-            "code": code
-        });
-        let response = client.post(TOKEN_URL)
-            .body(payload.to_string())
-            .header("Content-Type", "application/json")
-            .header("Accept", "application/json")
-            .send()
-            .await?
-            .json()
-            .await?;
-
-        Ok(response)
-    }
-}
-
-pub mod structs {
-    use poise::serenity_prelude::{CreateEmbed, CreateEmbedFooter};
+use poise::serenity_prelude::{CreateEmbed, CreateEmbedFooter};
     use serde::Deserialize;
     use std::collections::VecDeque;
 
@@ -163,4 +93,3 @@ pub mod structs {
             }
         }
     }
-}
