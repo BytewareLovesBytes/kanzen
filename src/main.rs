@@ -30,7 +30,7 @@ async fn main() {
     .expect("Could not build config from file");
 
     let pool = PgPoolOptions::new()
-        .max_connections(5)
+        .max_connections(conf.database.max_connections)
         .connect(&conf.database.connection_url)
         .await
         .expect("Could not connect to database");
