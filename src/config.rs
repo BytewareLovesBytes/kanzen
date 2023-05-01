@@ -16,7 +16,7 @@ pub struct AniList {
 #[derive(Deserialize)]
 pub struct Database {
     pub connection_url: String,
-    pub max_connections: u32
+    pub max_connections: u32,
 }
 
 #[derive(Deserialize)]

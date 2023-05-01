@@ -1,7 +1,9 @@
-use poise::serenity_prelude::{ActionRowComponent, ButtonStyle, CacheHttp, EmojiId, ReactionType, User as DiscordUser};
+use poise::serenity_prelude::{
+    ActionRowComponent, ButtonStyle, CacheHttp, EmojiId, ReactionType, User as DiscordUser,
+};
 
 use crate::{
-    database::anilist::{upsert_anilist_user, get_anilist_user_token_pair},
+    database::anilist::{get_anilist_user_token_pair, upsert_anilist_user},
     helpers::{
         anilist::{
             oauth::{exchange_code, format_oauth_url, get_authenticated_user},
@@ -12,8 +14,7 @@ use crate::{
         constants::{ANILIST_ANIME_QUERY, ANILIST_ICON, ANILIST_MANGA_QUERY},
         random_component_id,
     },
-    Command,
-    PgError
+    Command, PgError,
 };
 use crate::{Context, Error};
 
@@ -199,10 +200,7 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
 }
 
 #[poise::command(context_menu_command = "AniList Profile")]
-pub async fn anilist_profile(
-    ctx: Context<'_>,
-    user: DiscordUser
-) -> Result<(), Error> {
+pub async fn anilist_profile(ctx: Context<'_>, user: DiscordUser) -> Result<(), Error> {
     ctx.defer_ephemeral().await?;
     let data = ctx.data();
     let token_pair = get_anilist_user_token_pair(&data.pool, user.id.0).await;
@@ -215,23 +213,19 @@ pub async fn anilist_profile(
                     user.to_embed(ce);
                     ce
                 })
-            }).await?;
+            })
+            .await?;
 
             Ok(())
-        },
-        Err(err) => {
-            match err {
-                PgError::RowNotFound => {
-                    ctx.say("No AniList account linked for this Discord User. Perhaps try asking them to link one?").await?;
-                    Ok(())
-                },
-                other => {
-                    Err(other.into())
-                }
-            }
         }
+        Err(err) => match err {
+            PgError::RowNotFound => {
+                ctx.say("No AniList account linked for this Discord User. Perhaps try asking them to link one?").await?;
+                Ok(())
+            }
+            other => Err(other.into()),
+        },
     }
-    
 }
 
 pub fn commands() -> [Command; 2] {
