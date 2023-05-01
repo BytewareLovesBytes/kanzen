@@ -201,6 +201,9 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
 
 #[poise::command(context_menu_command = "AniList Profile")]
 pub async fn anilist_profile(ctx: Context<'_>, user: DiscordUser) -> Result<(), Error> {
+    if user.bot {
+        ctx.say("This is a bot. Bot's can't have AniList accounts.").await?;
+    }
     ctx.defer_ephemeral().await?;
     let data = ctx.data();
     let token_pair = get_anilist_user_token_pair(&data.pool, user.id.0).await;
