@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use serde::Deserialize;
 
-const SCHEDULE_BASE_URL: &str = "https://img.animeschedule.net/production/assets/public/img/";
+use super::SCHEDULE_BASE_CDN_URL;
 
 #[derive(Deserialize)]
 pub struct AnimeObject {
@@ -20,7 +20,7 @@ pub struct AnimeObject {
 
 impl AnimeObject {
     pub fn image_url(&self) -> String {
-        format!("{}{}", SCHEDULE_BASE_URL, &self.image_version_route)
+        format!("{}{}", SCHEDULE_BASE_CDN_URL, &self.image_version_route)
     }
     pub fn episode_date_chrono(&self) -> chrono::DateTime<chrono::Utc> {
         chrono::DateTime::from_str(&self.episode_date).unwrap() // I don't know

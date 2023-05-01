@@ -14,6 +14,11 @@ pub struct AniList {
 }
 
 #[derive(Deserialize)]
+pub struct AnimeSchedule {
+    pub token: String
+}
+
+#[derive(Deserialize)]
 pub struct Database {
     pub connection_url: String,
     pub max_connections: u32,
