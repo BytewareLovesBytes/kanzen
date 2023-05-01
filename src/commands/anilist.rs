@@ -1,6 +1,7 @@
 use poise::serenity_prelude::{ActionRowComponent, ButtonStyle, CacheHttp, EmojiId, ReactionType};
 
 use crate::{
+    database::anilist::upsert_anilist_user,
     helpers::{
         anilist::{
             oauth::{exchange_code, format_oauth_url, get_authenticated_user},
@@ -97,6 +98,8 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
     let modal_id = random_component_id();
     let modal_input_id = random_component_id();
 
+    let pool = &data.pool;
+
     let handle = ctx.send(|cr| {
         cr.embed(|ce| {
             ce.title("Link AniList Account")
@@ -174,6 +177,7 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
                     .await?;
                     let mut anilist_user =
                         get_authenticated_user(&data.http, &token_response.access_token).await?;
+                    upsert_anilist_user(pool, ctx.author().id.0, &token_response).await?;
                     modal_interaction
                         .create_followup_message(ctx.http(), |cfr| {
                             cfr.ephemeral(true);

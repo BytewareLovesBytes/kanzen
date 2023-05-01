@@ -6,12 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+chrono = "0.4.24"
 futures = "0.3.28"
 poise = "0.5.4"
 rand = "0.8.5"
 reqwest = "0.11.16"
 serde = { version = "1.0.160", features = ["derive"] }
 serde_json = "1.0.96"
+sqlx = { version = "0.6.3", features = ["postgres", "runtime-tokio-rustls", "chrono"] }
 tokio = { version = "1.28.0", features = ["rt", "rt-multi-thread", "macros"] }
 toml = "0.7.3"
 tracing = "0.1.37"

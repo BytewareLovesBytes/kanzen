@@ -14,7 +14,14 @@ pub struct AniList {
 }
 
 #[derive(Deserialize)]
+pub struct Database {
+    pub connection_url: String,
+    pub max_connections: u32
+}
+
+#[derive(Deserialize)]
 pub struct Config {
     pub discord: Discord,
     pub anilist: AniList,
+    pub database: Database,
 }

@@ -17,6 +17,14 @@ pub struct TokenResponse {
     pub token_type: String,
 }
 
+impl TokenResponse {
+    pub fn expires_at(&self) -> chrono::DateTime<chrono::Utc> {
+        let current = chrono::Utc::now();
+        current.checked_add_signed(chrono::Duration::seconds(self.expires_in as i64));
+        current
+    }
+}
+
 pub fn format_oauth_url(client_id: &u16, redirect_uri: &str) -> String {
     format!(
             "https://anilist.co/api/v2/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code"

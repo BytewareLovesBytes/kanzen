@@ -1,18 +1,26 @@
 mod commands;
 mod config;
+mod database;
 mod helpers;
 
 use poise::serenity_prelude as serenity;
+use sqlx::{
+    postgres::{PgPoolOptions, Postgres},
+    Error as SqlxError, Pool,
+};
 
 use config::Config;
 
 pub struct Data {
     pub http: reqwest::Client,
     pub config: Config,
+    pub pool: Pool<Postgres>,
 } // User data, which is stored and accessible in all command invocations
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, Data, Error>;
 pub type Command = poise::Command<Data, Error>;
+pub type PgPool = Pool<Postgres>; // just a shorthand
+pub type PgError = SqlxError;
 
 #[tokio::main]
 async fn main() {
@@ -20,6 +28,12 @@ async fn main() {
         &std::fs::read_to_string("config.toml").expect("Could not read config.toml"),
     )
     .expect("Could not build config from file");
+
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&conf.database.connection_url)
+        .await
+        .expect("Could not connect to database");
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
@@ -39,6 +53,7 @@ async fn main() {
                 Ok(Data {
                     http: reqwest::Client::new(),
                     config: conf,
+                    pool,
                 })
             })
         });
