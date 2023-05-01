@@ -15,7 +15,7 @@ pub struct AnimeObject {
     #[serde(rename = "imageVersionRoute")]
     pub image_version_route: String,
     #[serde(rename = "episodeDate")]
-    pub episode_date: String
+    pub episode_date: String,
 }
 
 impl AnimeObject {
@@ -24,6 +24,6 @@ impl AnimeObject {
     }
     pub fn episode_date_chrono(&self) -> chrono::DateTime<chrono::Utc> {
         chrono::DateTime::from_str(&self.episode_date).unwrap() // I don't know
-        // what the best way is to handle an invalid datetime at the moment
+                                                                // what the best way is to handle an invalid datetime at the moment
     }
 }

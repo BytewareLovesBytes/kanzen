@@ -15,7 +15,7 @@ pub struct AniList {
 
 #[derive(Deserialize)]
 pub struct AnimeSchedule {
-    pub token: String
+    pub token: String,
 }
 
 #[derive(Deserialize)]
