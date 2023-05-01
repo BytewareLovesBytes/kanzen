@@ -1,7 +1,7 @@
-use poise::serenity_prelude::{ActionRowComponent, ButtonStyle, CacheHttp, EmojiId, ReactionType};
+use poise::serenity_prelude::{ActionRowComponent, ButtonStyle, CacheHttp, EmojiId, ReactionType, User as DiscordUser};
 
 use crate::{
-    database::anilist::upsert_anilist_user,
+    database::anilist::{upsert_anilist_user, get_anilist_user_token_pair},
     helpers::{
         anilist::{
             oauth::{exchange_code, format_oauth_url, get_authenticated_user},
@@ -13,6 +13,7 @@ use crate::{
         random_component_id,
     },
     Command,
+    PgError
 };
 use crate::{Context, Error};
 
@@ -197,6 +198,42 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn commands() -> [Command; 1] {
-    [anilist()]
+#[poise::command(context_menu_command = "AniList Profile")]
+pub async fn anilist_profile(
+    ctx: Context<'_>,
+    user: DiscordUser
+) -> Result<(), Error> {
+    ctx.defer_ephemeral().await?;
+    let data = ctx.data();
+    let token_pair = get_anilist_user_token_pair(&data.pool, user.id.0).await;
+    match token_pair {
+        Ok(token_pair) => {
+            let (access_token, _) = token_pair;
+            let mut user = get_authenticated_user(&data.http, &access_token).await?;
+            ctx.send(|cr| {
+                cr.embed(|ce| {
+                    user.to_embed(ce);
+                    ce
+                })
+            }).await?;
+
+            Ok(())
+        },
+        Err(err) => {
+            match err {
+                PgError::RowNotFound => {
+                    ctx.say("No AniList account linked for this Discord User. Perhaps try asking them to link one?").await?;
+                    Ok(())
+                },
+                other => {
+                    Err(other.into())
+                }
+            }
+        }
+    }
+    
+}
+
+pub fn commands() -> [Command; 2] {
+    [anilist(), anilist_profile()]
 }

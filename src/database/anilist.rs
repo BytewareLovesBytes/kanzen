@@ -17,3 +17,15 @@ pub async fn upsert_anilist_user(
     .await?;
     Ok(())
 }
+
+pub async fn get_anilist_user_token_pair(pool: &PgPool, discord_id: u64) -> Result<(String, String), PgError> {
+    let row: (String, String) = sqlx::query_as(
+        "SELECT access_token, refresh_token FROM anilist_users 
+        WHERE discord_id = $1"
+    )
+    .bind(discord_id as i64)
+    .fetch_one(pool)
+    .await?;
+
+    Ok(row)
+}
