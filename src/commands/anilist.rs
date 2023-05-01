@@ -180,7 +180,7 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
                     .await?;
                     let mut anilist_user =
                         get_authenticated_user(&data.http, &token_response.access_token).await?;
-                    upsert_anilist_user(pool, ctx.author().id.0, &token_response).await?;
+                    upsert_anilist_user(pool, &ctx.author().id, &token_response).await?;
                     modal_interaction
                         .create_followup_message(ctx.http(), |cfr| {
                             cfr.ephemeral(true);
