@@ -17,6 +17,17 @@ pub fn random_component_id() -> String {
     rand_string
 }
 
+pub async fn quick_embed(ctx: &Context<'_>, text: &str) -> Result<(), Error> {
+    ctx.send(|cr| {
+        cr.embed(|ce| {
+            ce.colour(0x83BEE5)
+            .description(text)
+        })
+    }).await?;
+
+    Ok(())
+}
+
 pub trait ToEmbed {
     fn to_embed(&mut self, ce: &mut CreateEmbed);
 }

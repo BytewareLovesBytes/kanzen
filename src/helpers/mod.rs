@@ -3,4 +3,4 @@ pub mod common;
 pub mod constants;
 pub mod schedule;
 
-pub use common::random_component_id;
+pub use common::{random_component_id, quick_embed};

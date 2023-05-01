@@ -86,6 +86,7 @@ pub async fn manga(
 /// Link your AniList account
 #[poise::command(slash_command)]
 pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
+    // TODO: rewrite using poise modals
     let data = ctx.data();
     let anilist_conf = &data.config.anilist;
     let oauth_url = format_oauth_url(&anilist_conf.client_id, &anilist_conf.redirect_url);
