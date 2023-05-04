@@ -4,7 +4,11 @@ use crate::{
     database::schedule::upsert_schedule_channel, helpers::quick_embed, Command, Context, Error,
 };
 
-#[poise::command(slash_command, subcommands("setup"), default_member_permissions = "ADMINISTRATOR")]
+#[poise::command(
+    slash_command,
+    subcommands("setup"),
+    default_member_permissions = "ADMINISTRATOR"
+)]
 pub async fn schedule(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
@@ -18,7 +22,12 @@ pub async fn setup(
 ) -> Result<(), Error> {
     ctx.defer_ephemeral().await?;
     let data = ctx.data();
-    println!("CHANNEL ID: {:?} {} {}", &channel.id, &channel.id.0, &channel.id.as_u64());
+    println!(
+        "CHANNEL ID: {:?} {} {}",
+        &channel.id,
+        &channel.id.0,
+        &channel.id.as_u64()
+    );
 
     upsert_schedule_channel(&data.pool, &ctx.guild().unwrap().id, &channel.id).await?;
     quick_embed(&ctx, "Updated schedule channel successfully").await?;
