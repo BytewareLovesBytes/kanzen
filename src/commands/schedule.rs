@@ -4,7 +4,7 @@ use crate::{
     database::schedule::upsert_schedule_channel, helpers::quick_embed, Command, Context, Error,
 };
 
-#[poise::command(slash_command, subcommands("setup"))]
+#[poise::command(slash_command, subcommands("setup"), default_member_permissions = "ADMINISTRATOR")]
 pub async fn schedule(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
