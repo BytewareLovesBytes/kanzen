@@ -18,6 +18,7 @@ pub async fn setup(
 ) -> Result<(), Error> {
     ctx.defer_ephemeral().await?;
     let data = ctx.data();
+    println!("CHANNEL ID: {:?} {} {}", &channel.id, &channel.id.0, &channel.id.as_u64());
 
     upsert_schedule_channel(&data.pool, &ctx.guild().unwrap().id, &channel.id).await?;
     quick_embed(&ctx, "Updated schedule channel successfully").await?;

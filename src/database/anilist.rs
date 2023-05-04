@@ -1,5 +1,5 @@
-use poise::serenity_prelude::UserId;
 use crate::{helpers::anilist::oauth::TokenResponse, PgError, PgPool};
+use poise::serenity_prelude::UserId;
 
 pub async fn upsert_anilist_user(
     pool: &PgPool,

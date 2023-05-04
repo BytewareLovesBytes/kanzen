@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 
+use chrono::{DateTime, TimeZone};
 use futures::StreamExt;
 use poise::serenity_prelude::{ButtonStyle, CacheHttp, CreateEmbed, CreateEmbedFooter};
 use rand::distributions::Alphanumeric;
@@ -133,4 +134,9 @@ impl<T: ToEmbed> EmbedPaginator<T> {
 
         Ok(())
     }
+}
+
+pub fn format_dt<T: TimeZone>(dt: &DateTime<T>) -> String {
+    let timestamp = dt.timestamp();
+    format!("<t:{timestamp}>")
 }
