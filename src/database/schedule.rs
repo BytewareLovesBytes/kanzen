@@ -29,7 +29,5 @@ pub async fn get_schedule_channels(pool: &PgPool) -> Result<Vec<(i64,)>, PgError
     .fetch_all(pool)
     .await?;
 
-    println!("RETURNED CHANNEL IDS {:?}", stream);
-
     Ok(stream)
 }

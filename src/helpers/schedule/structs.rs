@@ -52,7 +52,7 @@ impl AnimeObject {
                                                                 // what the best way is to handle an invalid datetime at the moment
     }
     pub fn site_url(&self) -> String {
-        format!("https://animeschedule.net/{}", self.route)
+        format!("https://animeschedule.net/anime/{}", self.route)
     }
 }
 
@@ -65,7 +65,11 @@ impl AddComponents for AnimeObject {
                 t[0] = t[0].to_uppercase().nth(0).unwrap();
                 let new_title: String = t.into_iter().collect();
 
-                row.create_button(|cb| cb.label(&new_title).style(ButtonStyle::Link).url(url));
+                row.create_button(|cb| {
+                    cb.label(&new_title)
+                        .style(ButtonStyle::Link)
+                        .url(format!("https://{url}"))
+                });
             }
             cc.add_action_row(row);
         }
