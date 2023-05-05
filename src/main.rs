@@ -10,6 +10,7 @@ use sqlx::{
     postgres::{PgPoolOptions, Postgres},
     Error as SqlxError, Pool,
 };
+use tracing::info;
 
 use crate::helpers::schedule::core::ScheduleCore;
 use config::Config;
@@ -58,6 +59,7 @@ async fn main() {
                     serenity::GuildId(conf.discord.test_guild_id),
                 )
                 .await?;
+                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 let data = Data {
                     http: reqwest::Client::new(),
                     config: conf,
@@ -73,6 +75,6 @@ async fn main() {
             })
         });
 
-    println!("Starting bot...");
+    info!("Starting bot...");
     framework.run().await.unwrap();
 }

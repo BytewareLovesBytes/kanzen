@@ -1,9 +1,10 @@
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
+use poise::serenity_prelude::{ButtonStyle, CreateActionRow, CreateComponents};
 use serde::Deserialize;
 
 use super::SCHEDULE_BASE_CDN_URL;
-use crate::helpers::common::{format_dt, ToEmbed};
+use crate::helpers::common::{format_dt, AddComponents, ToEmbed};
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct AnimeObject {
@@ -17,6 +18,7 @@ pub struct AnimeObject {
     pub image_version_route: String,
     #[serde(rename = "episodeDate")]
     pub episode_date: String,
+    pub streams: HashMap<String, String>,
 }
 
 impl PartialEq for AnimeObject {
@@ -36,7 +38,8 @@ impl ToEmbed for AnimeObject {
             .colour(0x3D77C7)
             .field("Episode Number", &self.episode_number, true)
             .field("Released", timestamp, true)
-            .thumbnail(&self.image_url());
+            .thumbnail(&self.image_url())
+            .url(&self.site_url());
     }
 }
 
@@ -47,5 +50,24 @@ impl AnimeObject {
     pub fn episode_date_chrono(&self) -> chrono::DateTime<chrono::Utc> {
         chrono::DateTime::from_str(&self.episode_date).unwrap() // I don't know
                                                                 // what the best way is to handle an invalid datetime at the moment
+    }
+    pub fn site_url(&self) -> String {
+        format!("https://animeschedule.net/{}", self.route)
+    }
+}
+
+impl AddComponents for AnimeObject {
+    fn add_components(&mut self, cc: &mut CreateComponents) {
+        if self.streams.len() > 0 {
+            let mut row = CreateActionRow::default();
+            for (title, url) in self.streams.iter() {
+                let mut t: Vec<char> = title.chars().collect();
+                t[0] = t[0].to_uppercase().nth(0).unwrap();
+                let new_title: String = t.into_iter().collect();
+
+                row.create_button(|cb| cb.label(&new_title).style(ButtonStyle::Link).url(url));
+            }
+            cc.add_action_row(row);
+        }
     }
 }

@@ -1,8 +1,11 @@
-use poise::serenity_prelude::{CreateEmbed, CreateEmbedFooter};
+use poise::serenity_prelude::{ButtonStyle, CreateActionRow, CreateEmbed, CreateEmbedFooter};
 use serde::Deserialize;
 use std::collections::VecDeque;
 
-use crate::helpers::{common::ToEmbed, constants::ANILIST_ICON};
+use crate::helpers::{
+    common::{AddComponents, ToEmbed},
+    constants::ANILIST_ICON,
+};
 
 #[derive(Deserialize, Debug)]
 pub struct Response<T> {
@@ -52,6 +55,8 @@ pub struct Media {
     pub banner_image: Option<String>,
     #[serde(rename = "coverImage")]
     pub cover_image: Image,
+    #[serde(rename = "streamingEpisodes")]
+    pub streaming_episodes: Vec<StreamingSite>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -93,6 +98,12 @@ pub struct UserStatistics {
     pub minutes_watched: Option<u16>,
 }
 
+#[derive(Deserialize, Debug)]
+pub struct StreamingSite {
+    pub site: String,
+    pub url: String,
+}
+
 impl Image {
     pub fn first(&self) -> Option<&String> {
         self.large
@@ -128,6 +139,15 @@ impl ToEmbed for Media {
         }
         if let Some(cover_image) = &self.cover_image.first() {
             ce.thumbnail(cover_image);
+        }
+    }
+}
+
+impl AddComponents for Media {
+    fn add_components_to_action_row(&mut self, car: &mut CreateActionRow) {
+        let first = self.streaming_episodes.get(0);
+        if let Some(site) = first {
+            car.create_button(|cb| cb.style(ButtonStyle::Link).label(&site.site).url(&site.url));
         }
     }
 }

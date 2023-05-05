@@ -10,7 +10,11 @@ use tracing::{debug, info};
 
 use super::get_weekly_timetable;
 use super::structs::AnimeObject;
-use crate::{database::schedule::get_schedule_channels, helpers::common::ToEmbed, Data};
+use crate::{
+    database::schedule::get_schedule_channels,
+    helpers::common::{AddComponents, ToEmbed},
+    Data,
+};
 
 pub struct ScheduleCore {
     tx: Arc<Mutex<broadcast::Sender<AnimeObject>>>,
@@ -76,6 +80,10 @@ impl ScheduleCore {
                     cm.embed(|ce| {
                         anime.to_embed(ce);
                         ce
+                    });
+                    cm.components(|cc| {
+                        anime.add_components(cc);
+                        cc
                     })
                 })
                 .await

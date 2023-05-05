@@ -2,7 +2,9 @@ use std::collections::VecDeque;
 
 use chrono::{DateTime, TimeZone};
 use futures::StreamExt;
-use poise::serenity_prelude::{ButtonStyle, CacheHttp, CreateEmbed, CreateEmbedFooter};
+use poise::serenity_prelude::{
+    ButtonStyle, CacheHttp, CreateActionRow, CreateComponents, CreateEmbed, CreateEmbedFooter,
+};
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
@@ -28,13 +30,17 @@ pub async fn quick_embed(ctx: &Context<'_>, text: &str) -> Result<(), Error> {
 pub trait ToEmbed {
     fn to_embed(&mut self, ce: &mut CreateEmbed);
 }
+pub trait AddComponents {
+    fn add_components(&mut self, _ce: &mut CreateComponents) {}
+    fn add_components_to_action_row(&mut self, _row: &mut CreateActionRow) {}
+}
 
-pub struct EmbedPaginator<T: ToEmbed> {
+pub struct EmbedPaginator<T: ToEmbed + AddComponents> {
     items: VecDeque<T>,
     footer_formatter: fn(&mut CreateEmbedFooter, usize, usize),
 }
 
-impl<T: ToEmbed> EmbedPaginator<T> {
+impl<T: ToEmbed + AddComponents> EmbedPaginator<T> {
     pub fn new(
         items: VecDeque<T>,
         footer_formatter: fn(&mut CreateEmbedFooter, usize, usize),
@@ -68,7 +74,9 @@ impl<T: ToEmbed> EmbedPaginator<T> {
                             cb.label("Close")
                                 .custom_id(random_component_id())
                                 .style(ButtonStyle::Danger)
-                        })
+                        });
+                        media.add_components_to_action_row(car);
+                        car
                     })
                 })
             })
@@ -104,6 +112,18 @@ impl<T: ToEmbed> EmbedPaginator<T> {
                                 cf
                             });
                             ce
+                        });
+                        edit.components(|cc| {
+                            cc.create_action_row(|car| {
+                                car.create_button(|cb| cb.label("Next").custom_id(&next_btn_id));
+                                car.create_button(|cb| {
+                                    cb.label("Close")
+                                        .style(ButtonStyle::Danger)
+                                        .custom_id(random_component_id())
+                                });
+                                next_media.add_components_to_action_row(car);
+                                car
+                            })
                         })
                     })
                     .await?;

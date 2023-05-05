@@ -31,6 +31,10 @@ query($search: String, $page: Int = 1, $per_page: Int = 10) {
             },
             episodes
             isAdult
+            streamingEpisodes {
+                url
+                site
+            }
         }
     }
 }
