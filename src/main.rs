@@ -53,7 +53,7 @@ async fn main() {
         .intents(serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::GUILDS)
         .setup(move |ctx, _ready, framework| {
             Box::pin(async move {
-                for guild_id in &conf.discord.test_guild_id {
+                for guild_id in &conf.discord.test_guild_ids {
                     poise::builtins::register_in_guild(
                         ctx,
                         &framework.options().commands,
@@ -73,6 +73,8 @@ async fn main() {
                     .create_tasks(&data.http, &data.config.schedule.token)
                     .await;
                 scheduler.start(arc_ctx, arc_data).await;
+                let activity = serenity::Activity::watching("for anime releases");
+                ctx.set_activity(activity).await;
                 Ok(data)
             })
         });
