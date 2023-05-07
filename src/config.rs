@@ -3,7 +3,7 @@ use serde::Deserialize;
 #[derive(Deserialize, Clone)]
 pub struct Discord {
     pub token: String,
-    pub test_guild_id: u64,
+    pub test_guild_id: Vec<u64>,
 }
 
 #[derive(Deserialize, Clone)]

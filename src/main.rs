@@ -53,12 +53,14 @@ async fn main() {
         .intents(serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::GUILDS)
         .setup(move |ctx, _ready, framework| {
             Box::pin(async move {
-                poise::builtins::register_in_guild(
-                    ctx,
-                    &framework.options().commands,
-                    serenity::GuildId(conf.discord.test_guild_id),
-                )
-                .await?;
+                for guild_id in &conf.discord.test_guild_id {
+                    poise::builtins::register_in_guild(
+                        ctx,
+                        &framework.options().commands,
+                        serenity::GuildId(guild_id.to_owned()),
+                    )
+                    .await?;
+                }
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 let data = Data {
                     http: reqwest::Client::new(),
