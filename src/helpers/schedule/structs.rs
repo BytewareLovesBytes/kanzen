@@ -4,7 +4,7 @@ use poise::serenity_prelude::{ButtonStyle, CreateActionRow, CreateComponents};
 use serde::Deserialize;
 
 use super::SCHEDULE_BASE_CDN_URL;
-use crate::helpers::common::{format_dt, AddComponents, ToEmbed};
+use crate::helpers::common::{format_dt, AddComponents, ToEmbed, format_title};
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct AnimeObject {
@@ -18,6 +18,8 @@ pub struct AnimeObject {
     pub image_version_route: String,
     #[serde(rename = "episodeDate")]
     pub episode_date: String,
+    #[serde(rename = "airType")]
+    pub air_type: String,
     pub streams: HashMap<String, String>,
 }
 
@@ -29,7 +31,8 @@ impl PartialEq for AnimeObject {
 
 impl ToEmbed for AnimeObject {
     fn to_embed(&mut self, ce: &mut poise::serenity_prelude::CreateEmbed) {
-        let timestamp = format_dt(&self.episode_date_chrono());
+        let long_timestamp = format_dt(&self.episode_date_chrono(), Some("F"));
+        let relative_timestamp = format_dt(&self.episode_date_chrono(), Some("R"));
         ce.title(&self.title)
             .description(format!(
                 "{} was just released, go check it out",
@@ -37,7 +40,8 @@ impl ToEmbed for AnimeObject {
             ))
             .colour(0x3D77C7)
             .field("Episode Number", &self.episode_number, true)
-            .field("Released", timestamp, true)
+            .field("Released", format!("{long_timestamp} ({relative_timestamp})"), true)
+            .field("Air Type", format_title(&self.air_type), true)
             .thumbnail(&self.image_url())
             .url(&self.site_url());
     }
@@ -61,9 +65,7 @@ impl AddComponents for AnimeObject {
         if self.streams.len() > 0 {
             let mut row = CreateActionRow::default();
             for (title, url) in self.streams.iter() {
-                let mut t: Vec<char> = title.chars().collect();
-                t[0] = t[0].to_uppercase().nth(0).unwrap();
-                let new_title: String = t.into_iter().collect();
+                let new_title = format_title(title);
 
                 row.create_button(|cb| {
                     cb.label(&new_title)

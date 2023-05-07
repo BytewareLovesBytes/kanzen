@@ -156,7 +156,15 @@ impl<T: ToEmbed + AddComponents> EmbedPaginator<T> {
     }
 }
 
-pub fn format_dt<T: TimeZone>(dt: &DateTime<T>) -> String {
+pub fn format_dt<T: TimeZone>(dt: &DateTime<T>, style: Option<&str>) -> String {
     let timestamp = dt.timestamp();
-    format!("<t:{timestamp}>")
+    let style = style.unwrap_or("f");
+    format!("<t:{timestamp}:{style}>")
+}
+
+pub fn format_title(s: &str) -> String {
+    let mut chars = s.chars().collect::<Vec<char>>();
+    chars[0] = chars[0].to_uppercase().nth(0).unwrap();
+    let new_title: String = chars.into_iter().collect();
+    new_title
 }
