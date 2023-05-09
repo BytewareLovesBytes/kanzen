@@ -19,6 +19,11 @@ pub struct AnimeSchedule {
 }
 
 #[derive(Deserialize, Clone)]
+pub struct Staff {
+    pub applications_channel_id: u64,
+}
+
+#[derive(Deserialize, Clone)]
 pub struct Database {
     pub connection_url: String,
     pub max_connections: u32,
@@ -30,4 +35,5 @@ pub struct Config {
     pub anilist: AniList,
     pub database: Database,
     pub schedule: AnimeSchedule,
+    pub staff: Staff,
 }

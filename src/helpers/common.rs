@@ -162,6 +162,14 @@ pub fn format_dt<T: TimeZone>(dt: &DateTime<T>, style: Option<&str>) -> String {
     format!("<t:{timestamp}:{style}>")
 }
 
+const DISCORD_EPOCH: u64 = 1420070400000;
+
+pub fn snowflake_time(id: u64) -> chrono::DateTime<chrono::Utc> {
+    let timestamp = (id >> 22) + DISCORD_EPOCH;
+    let time = chrono::Utc.timestamp_millis_opt(timestamp as i64).unwrap();
+    time
+}
+
 pub fn format_title(s: &str) -> String {
     let mut chars = s.chars().collect::<Vec<char>>();
     chars[0] = chars[0].to_uppercase().nth(0).unwrap();

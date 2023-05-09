@@ -51,7 +51,7 @@ async fn main() {
         })
         .token(&conf.discord.token)
         .intents(serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::GUILDS)
-        .setup(move |ctx, _ready, framework| {
+        .setup(move |ctx, ready, framework| {
             Box::pin(async move {
                 for guild_id in &conf.discord.test_guild_ids {
                     poise::builtins::register_in_guild(
@@ -69,6 +69,8 @@ async fn main() {
                 };
                 let arc_ctx = Arc::new(ctx.to_owned());
                 let arc_data = Arc::new(data.clone());
+                let gc = ready.guilds.len();
+                info!("Working inside of {gc} guilds");
                 scheduler
                     .create_tasks(&data.http, &data.config.schedule.token)
                     .await;

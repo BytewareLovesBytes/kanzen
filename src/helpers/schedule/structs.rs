@@ -4,7 +4,7 @@ use poise::serenity_prelude::{ButtonStyle, CreateActionRow, CreateComponents};
 use serde::Deserialize;
 
 use super::SCHEDULE_BASE_CDN_URL;
-use crate::helpers::common::{format_dt, AddComponents, ToEmbed, format_title};
+use crate::helpers::common::{format_dt, format_title, AddComponents, ToEmbed};
 
 #[derive(Deserialize, Clone, Debug)]
 pub struct AnimeObject {
@@ -40,7 +40,11 @@ impl ToEmbed for AnimeObject {
             ))
             .colour(0x3D77C7)
             .field("Episode Number", &self.episode_number, true)
-            .field("Released", format!("{long_timestamp} ({relative_timestamp})"), true)
+            .field(
+                "Released",
+                format!("{long_timestamp} ({relative_timestamp})"),
+                true,
+            )
             .field("Air Type", format_title(&self.air_type), true)
             .thumbnail(&self.image_url())
             .url(&self.site_url());
