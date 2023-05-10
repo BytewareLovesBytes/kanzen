@@ -5,14 +5,15 @@ mod helpers;
 
 use std::sync::Arc;
 
-use poise::serenity_prelude as serenity;
+use poise::serenity_prelude::{self as serenity, EventHandler, InteractionType, GuildId};
 use sqlx::{
     postgres::{PgPoolOptions, Postgres},
     Error as SqlxError, Pool,
 };
 use tracing::info;
+use async_trait::async_trait;
 
-use crate::helpers::schedule::core::ScheduleCore;
+use crate::{helpers::schedule::core::ScheduleCore, database::apps::get_guild_application};
 use config::Config;
 
 #[derive(Clone)]
@@ -26,6 +27,37 @@ pub type Context<'a> = poise::Context<'a, Data, Error>;
 pub type Command = poise::Command<Data, Error>;
 pub type PgPool = Pool<Postgres>; // just a shorthand
 pub type PgError = SqlxError;
+
+struct Events {
+    data: Option<&'static Data>
+}
+#[async_trait]
+impl EventHandler for Events {
+    async fn interaction_create(&self, ctx: serenity::Context, interaction: serenity::Interaction) {
+        if interaction.kind() == InteractionType::MessageComponent {
+            let msg_c = interaction.message_component();
+            let data = self.data.unwrap(); // this shouldn't panic
+            match msg_c {
+                Some(interaction) => {
+                    let custom_id = interaction.data.custom_id;
+                    match get_guild_application(&data.pool, &custom_id).await {
+                        Ok((guild_id,)) => {
+                            let guild = GuildId(guild_id);
+                            // TODO: Complete this
+                        },
+                        Err(_) => {
+                            // let's ignore this for now
+                        }
+                    }
+                },
+                None => {
+                    info!("Message Component interaction received but failed to convert into MessageComponentInteraction")
+                    // I don't know how we got here
+                }
+            }
+        }
+    }
+}
 
 #[tokio::main]
 async fn main() {

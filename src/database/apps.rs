@@ -18,3 +18,16 @@ pub async fn insert_application(
 
     Ok(())
 }
+
+pub async fn get_guild_application(
+    pool: &PgPool,
+    custom_id: &str
+) -> Result<(u64,), PgError> {
+    let row: (i64,) = sqlx::query_as("SELECT guild_id FROM applications WHERE accept_id = $1 OR reject_id = $2")
+        .bind(custom_id)
+        .fetch_one(pool)
+        .await?;
+    let (guild_id,) = row;
+
+    Ok((guild_id as u64,))
+}

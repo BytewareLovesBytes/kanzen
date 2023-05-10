@@ -165,9 +165,8 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
         if let Some(modal_interaction) = modal_interaction {
             let row1 = modal_interaction.data.components.get(0).unwrap();
             let text_component = row1.components.get(0).unwrap();
-            match text_component {
-                ActionRowComponent::InputText(text) => {
-                    modal_interaction.defer(ctx.http()).await?;
+            if let ActionRowComponent::InputText(text) = text_component {
+                modal_interaction.defer(ctx.http()).await?;
                     let auth_code = &text.value;
                     let anilist_conf = &data.config.anilist;
                     let token_response = exchange_code(
@@ -191,8 +190,6 @@ pub async fn link(ctx: Context<'_>) -> Result<(), Error> {
                             cfr.content("<:superrocket:1102307185855303710> - **Account Linked Successfully**")
                         })
                         .await?;
-                }
-                _ => {}
             }
         }
     }
